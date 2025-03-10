@@ -3,21 +3,14 @@ import { Prisma } from '@prisma/client';
 export declare class UsersController {
     private readonly usersService;
     constructor(usersService: UsersService);
-    create(createUserDto: Prisma.UserCreateInput): Promise<{
+    findAll(status?: "ACTIVE" | "INACTIVE"): Promise<{
         id: number;
         email: string;
         name: string | null;
         createdAt: Date;
         updatedAt: Date;
         status: import(".prisma/client").$Enums.Status;
-    }>;
-    findAll(status: "ACTIVE" | "INACTIVE"): Promise<{
-        id: number;
-        email: string;
-        name: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-        status: import(".prisma/client").$Enums.Status;
+        password: string;
     }[]>;
     findOne(id: string): Promise<{
         id: number;
@@ -26,7 +19,17 @@ export declare class UsersController {
         createdAt: Date;
         updatedAt: Date;
         status: import(".prisma/client").$Enums.Status;
+        password: string;
     } | null>;
+    register(registerDto: Prisma.UserCreateInput): Promise<{
+        access_token: string;
+    }>;
+    login(loginDto: {
+        email: string;
+        password: string;
+    }): Promise<{
+        access_token: string;
+    }>;
     update(id: string, updateUserDto: Prisma.UserUpdateInput): Promise<{
         id: number;
         email: string;
@@ -34,13 +37,15 @@ export declare class UsersController {
         createdAt: Date;
         updatedAt: Date;
         status: import(".prisma/client").$Enums.Status;
+        password: string;
     }>;
-    remove(id: string): Promise<{
+    delete(id: string): Promise<{
         id: number;
         email: string;
         name: string | null;
         createdAt: Date;
         updatedAt: Date;
         status: import(".prisma/client").$Enums.Status;
+        password: string;
     }>;
 }

@@ -10,15 +10,23 @@ exports.UsersModule = void 0;
 const common_1 = require("@nestjs/common");
 const users_service_1 = require("./users.service");
 const users_controller_1 = require("./users.controller");
-const database_module_1 = require("../database/database.module");
+const database_service_1 = require("../database/database.service");
+const jwt_1 = require("@nestjs/jwt");
+const jwtGuard_1 = require("../guards/jwtGuard");
 let UsersModule = class UsersModule {
 };
 exports.UsersModule = UsersModule;
 exports.UsersModule = UsersModule = __decorate([
     (0, common_1.Module)({
-        imports: [database_module_1.DatabaseModule],
+        imports: [
+            jwt_1.JwtModule.register({
+                secret: process.env.JWT_SECRET || 'secretKey',
+                signOptions: { expiresIn: '1h' },
+            }),
+        ],
         controllers: [users_controller_1.UsersController],
-        providers: [users_service_1.UsersService],
+        providers: [users_service_1.UsersService, database_service_1.DatabaseService, jwtGuard_1.JwtGuard],
+        exports: [users_service_1.UsersService],
     })
 ], UsersModule);
 //# sourceMappingURL=users.module.js.map

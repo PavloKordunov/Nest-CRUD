@@ -12,41 +12,65 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersService = void 0;
 const common_1 = require("@nestjs/common");
 const database_service_1 = require("../database/database.service");
+const bcrypt = require("bcrypt");
+const jwt_1 = require("@nestjs/jwt");
 let UsersService = class UsersService {
-    databaseService;
-    constructor(databaseService) {
-        this.databaseService = databaseService;
-    }
-    async create(createUserDto) {
-        return this.databaseService.user.create({ data: createUserDto });
+    dataBaseService;
+    jwtService;
+    constructor(dataBaseService, jwtService) {
+        this.dataBaseService = dataBaseService;
+        this.jwtService = jwtService;
     }
     async findAll(status) {
         if (status) {
-            return this.databaseService.user.findMany({
+            return this.dataBaseService.user.findMany({
                 where: {
                     status,
                 }
             });
         }
-        return this.databaseService.user.findMany();
+        return this.dataBaseService.user.findMany();
+    }
+    async register(registerDto) {
+        const hashedpassword = await bcrypt.hash(registerDto.password, 10);
+        const user = await this.dataBaseService.user.create({
+            data: { ...registerDto, password: hashedpassword }
+        });
+        return this.generateToken(user);
+    }
+    async login(email, password) {
+        const user = await this.dataBaseService.user.findUnique({
+            where: {
+                email,
+            }
+        });
+        if (!user)
+            throw new common_1.UnauthorizedException('Invalid credentials');
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid)
+            throw new common_1.UnauthorizedException('Invalid credentials');
+        return this.generateToken(user);
+    }
+    async generateToken(user) {
+        return { access_token: this.jwtService.sign({ sub: user.id, email: user.email }) };
     }
     async findOne(id) {
-        return this.databaseService.user.findUnique({
+        return this.dataBaseService.user.findUnique({
             where: {
                 id,
             }
         });
     }
     async update(id, updateUserDto) {
-        return this.databaseService.user.update({
+        return this.dataBaseService.user.update({
             where: {
                 id,
             },
-            data: updateUserDto
+            data: updateUserDto,
         });
     }
-    async remove(id) {
-        return this.databaseService.user.delete({
+    async delete(id) {
+        return this.dataBaseService.user.delete({
             where: {
                 id,
             }
@@ -56,6 +80,6 @@ let UsersService = class UsersService {
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [database_service_1.DatabaseService])
+    __metadata("design:paramtypes", [database_service_1.DatabaseService, jwt_1.JwtService])
 ], UsersService);
 //# sourceMappingURL=users.service.js.map

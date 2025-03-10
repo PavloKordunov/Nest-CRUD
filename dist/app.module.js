@@ -12,14 +12,24 @@ const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const database_module_1 = require("./database/database.module");
 const users_module_1 = require("./users/users.module");
+const jwtGuard_1 = require("./guards/jwtGuard");
+const users_controller_1 = require("./users/users.controller");
+const jwt_1 = require("@nestjs/jwt");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
-        imports: [database_module_1.DatabaseModule, users_module_1.UsersModule],
-        controllers: [app_controller_1.AppController],
-        providers: [app_service_1.AppService],
+        imports: [
+            database_module_1.DatabaseModule,
+            users_module_1.UsersModule,
+            jwt_1.JwtModule.register({
+                secret: process.env.JWT_SECRET || 'secretKey',
+                signOptions: { expiresIn: '1h' },
+            }),
+        ],
+        controllers: [app_controller_1.AppController, users_controller_1.UsersController],
+        providers: [app_service_1.AppService, jwtGuard_1.JwtGuard],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

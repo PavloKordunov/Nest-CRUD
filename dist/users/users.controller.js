@@ -16,13 +16,11 @@ exports.UsersController = void 0;
 const common_1 = require("@nestjs/common");
 const users_service_1 = require("./users.service");
 const client_1 = require("@prisma/client");
+const jwtGuard_1 = require("../guards/jwtGuard");
 let UsersController = class UsersController {
     usersService;
     constructor(usersService) {
         this.usersService = usersService;
-    }
-    create(createUserDto) {
-        return this.usersService.create(createUserDto);
     }
     findAll(status) {
         return this.usersService.findAll(status);
@@ -30,22 +28,22 @@ let UsersController = class UsersController {
     findOne(id) {
         return this.usersService.findOne(+id);
     }
+    register(registerDto) {
+        return this.usersService.register(registerDto);
+    }
+    login(loginDto) {
+        return this.usersService.login(loginDto.email, loginDto.password);
+    }
     update(id, updateUserDto) {
         return this.usersService.update(+id, updateUserDto);
     }
-    remove(id) {
-        return this.usersService.remove(+id);
+    delete(id) {
+        return this.usersService.delete(+id);
     }
 };
 exports.UsersController = UsersController;
 __decorate([
-    (0, common_1.Post)(),
-    __param(0, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
-], UsersController.prototype, "create", null);
-__decorate([
+    (0, common_1.UseGuards)(jwtGuard_1.JwtGuard),
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)('status')),
     __metadata("design:type", Function),
@@ -53,6 +51,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "findAll", null);
 __decorate([
+    (0, common_1.UseGuards)(jwtGuard_1.JwtGuard),
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
@@ -60,6 +59,21 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "findOne", null);
 __decorate([
+    (0, common_1.Post)('register'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], UsersController.prototype, "register", null);
+__decorate([
+    (0, common_1.Post)('login'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], UsersController.prototype, "login", null);
+__decorate([
+    (0, common_1.UseGuards)(jwtGuard_1.JwtGuard),
     (0, common_1.Patch)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
@@ -68,12 +82,13 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "update", null);
 __decorate([
+    (0, common_1.UseGuards)(jwtGuard_1.JwtGuard),
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
-], UsersController.prototype, "remove", null);
+], UsersController.prototype, "delete", null);
 exports.UsersController = UsersController = __decorate([
     (0, common_1.Controller)('users'),
     __metadata("design:paramtypes", [users_service_1.UsersService])

@@ -3,12 +3,12 @@ CREATE TYPE "Status" AS ENUM ('ACTIVE', 'INACTIVE');
 
 -- CreateTable
 CREATE TABLE "User" (
-    "id" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
     "email" TEXT NOT NULL,
     "name" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "Status" "Status" NOT NULL,
+    "status" "Status" NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
