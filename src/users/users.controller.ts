@@ -7,13 +7,11 @@ import { JwtGuard } from 'src/guards/jwtGuard';
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
-    @UseGuards(JwtGuard)
     @Get()
     findAll(@Query('status') status?: "ACTIVE" | "INACTIVE"){
         return this.usersService.findAll(status)
     }
 
-    @UseGuards(JwtGuard)
     @Get(':id')
     findOne(@Param('id') id: string){
         return this.usersService.findOne(+id)

@@ -13,8 +13,8 @@ const app_service_1 = require("./app.service");
 const database_module_1 = require("./database/database.module");
 const users_module_1 = require("./users/users.module");
 const jwtGuard_1 = require("./guards/jwtGuard");
-const users_controller_1 = require("./users/users.controller");
 const jwt_1 = require("@nestjs/jwt");
+const posts_module_1 = require("./posts/posts.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -25,10 +25,11 @@ exports.AppModule = AppModule = __decorate([
             users_module_1.UsersModule,
             jwt_1.JwtModule.register({
                 secret: process.env.JWT_SECRET || 'secretKey',
-                signOptions: { expiresIn: '1h' },
+                signOptions: { expiresIn: '1d' },
             }),
+            posts_module_1.PostsModule,
         ],
-        controllers: [app_controller_1.AppController, users_controller_1.UsersController],
+        controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService, jwtGuard_1.JwtGuard],
     })
 ], AppModule);

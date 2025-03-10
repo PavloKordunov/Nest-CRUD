@@ -4,8 +4,8 @@ import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module';
 import { UsersModule } from './users/users.module';
 import { JwtGuard } from './guards/jwtGuard';
-import { UsersController } from './users/users.controller';
 import { JwtModule } from '@nestjs/jwt';
+import { PostsModule } from './posts/posts.module';
 
 @Module({
   imports: [
@@ -13,10 +13,11 @@ import { JwtModule } from '@nestjs/jwt';
     UsersModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'secretKey',
-      signOptions: { expiresIn: '1h' },
+      signOptions: { expiresIn: '1d' },
     }),
+    PostsModule,
   ],
-  controllers: [AppController, UsersController],
+  controllers: [AppController],
   providers: [AppService, JwtGuard],
 })
 export class AppModule {}

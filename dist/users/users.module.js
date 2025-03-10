@@ -21,7 +21,7 @@ exports.UsersModule = UsersModule = __decorate([
         imports: [
             jwt_1.JwtModule.register({
                 secret: process.env.JWT_SECRET || 'secretKey',
-                signOptions: { expiresIn: '1h' },
+                signOptions: { expiresIn: '1d' },
             }),
         ],
         controllers: [users_controller_1.UsersController],
