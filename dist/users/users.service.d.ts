@@ -6,6 +6,14 @@ export declare class UsersService {
     private jwtService;
     constructor(dataBaseService: DatabaseService, jwtService: JwtService);
     findAll(status?: "ACTIVE" | "INACTIVE"): Promise<{
+        groups: {
+            id: number;
+            name: string;
+            createdAt: Date;
+            description: string;
+            ownerId: number;
+        }[];
+        membership: undefined;
         id: number;
         email: string;
         name: string | null;
@@ -24,14 +32,22 @@ export declare class UsersService {
         access_token: string;
     }>;
     findOne(id: number): Promise<{
-        id: number;
-        email: string;
-        name: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-        status: import(".prisma/client").$Enums.Status;
-        password: string;
-    } | null>;
+        groups: {
+            id: number;
+            name: string;
+            createdAt: Date;
+            description: string;
+            ownerId: number;
+        }[] | undefined;
+        membership: undefined;
+        id?: number | undefined;
+        email?: string | undefined;
+        name?: string | null | undefined;
+        createdAt?: Date | undefined;
+        updatedAt?: Date | undefined;
+        status?: import(".prisma/client").$Enums.Status | undefined;
+        password?: string | undefined;
+    }>;
     update(id: number, updateUserDto: Prisma.UserUpdateInput): Promise<{
         id: number;
         email: string;

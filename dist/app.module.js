@@ -15,6 +15,7 @@ const users_module_1 = require("./users/users.module");
 const jwtGuard_1 = require("./guards/jwtGuard");
 const jwt_1 = require("@nestjs/jwt");
 const posts_module_1 = require("./posts/posts.module");
+const groups_module_1 = require("./groups/groups.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -28,6 +29,7 @@ exports.AppModule = AppModule = __decorate([
                 signOptions: { expiresIn: '1d' },
             }),
             posts_module_1.PostsModule,
+            groups_module_1.GroupsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService, jwtGuard_1.JwtGuard],

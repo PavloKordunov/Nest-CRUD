@@ -22,14 +22,21 @@ let UsersService = class UsersService {
         this.jwtService = jwtService;
     }
     async findAll(status) {
-        if (status) {
-            return this.dataBaseService.user.findMany({
-                where: {
-                    status,
-                }
-            });
-        }
-        return this.dataBaseService.user.findMany();
+        const users = await this.dataBaseService.user.findMany({
+            where: status ? { status } : undefined,
+            include: {
+                membership: {
+                    include: {
+                        group: true,
+                    },
+                },
+            },
+        });
+        return users.map(user => ({
+            ...user,
+            groups: user.membership.map(m => m.group),
+            membership: undefined
+        }));
     }
     async register(registerDto) {
         const hashedpassword = await bcrypt.hash(registerDto.password, 10);
@@ -55,11 +62,23 @@ let UsersService = class UsersService {
         return { access_token: this.jwtService.sign({ sub: user.id, email: user.email }) };
     }
     async findOne(id) {
-        return this.dataBaseService.user.findUnique({
+        const user = await this.dataBaseService.user.findUnique({
             where: {
                 id,
+            },
+            include: {
+                membership: {
+                    include: {
+                        group: true
+                    }
+                }
             }
         });
+        return {
+            ...user,
+            groups: user?.membership.map(m => m.group),
+            membership: undefined
+        };
     }
     async update(id, updateUserDto) {
         return this.dataBaseService.user.update({

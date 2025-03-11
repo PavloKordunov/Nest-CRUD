@@ -8,22 +8,48 @@ datasource db {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  email     String    @unique
-  name      String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  status    Status
-  password  String
-  post      Post[]
+  id         Int       @id @default(autoincrement())
+  email      String    @unique
+  name       String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  status     Status
+  password   String
+
+  post       Post[]
+  groups     Group[] @relation("GroupOwner")
+  membership GroupSubsription[]
+}
+
+model Group {
+  id           Int       @id @default(autoincrement())
+  name         String    @unique
+  description  String
+  ownerId      Int
+  createdAt    DateTime  @default(now())
+
+  owner        User      @relation("GroupOwner", fields: [ownerId], references: [id])
+  
+  members      GroupSubsription[]
+}
+
+model GroupSubsription {
+  id        Int     @id @default(autoincrement())
+
+  userId    Int
+  groupId   Int
+
+  user      User    @relation(fields: [userId], references: [id])
+  group     Group   @relation(fields: [groupId], references: [id])
 }
 
 model Post{
-  id              Int     @id @default(autoincrement())
-  title           String 
-  description     String
-  userId          Int
-  user            User    @relation(fields: [userId], references: [id])
+  id            Int     @id @default(autoincrement())
+  title         String 
+  description   String
+
+  userId        Int
+  user          User    @relation(fields: [userId], references: [id])
 }
 
 enum Status {

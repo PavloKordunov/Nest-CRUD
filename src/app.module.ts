@@ -6,6 +6,7 @@ import { UsersModule } from './users/users.module';
 import { JwtGuard } from './guards/jwtGuard';
 import { JwtModule } from '@nestjs/jwt';
 import { PostsModule } from './posts/posts.module';
+import { GroupsModule } from './groups/groups.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { PostsModule } from './posts/posts.module';
       signOptions: { expiresIn: '1d' },
     }),
     PostsModule,
+    GroupsModule,
   ],
   controllers: [AppController],
   providers: [AppService, JwtGuard],
