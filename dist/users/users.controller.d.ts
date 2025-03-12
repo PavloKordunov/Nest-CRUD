@@ -20,23 +20,7 @@ export declare class UsersController {
         status: import(".prisma/client").$Enums.Status;
         password: string;
     }[]>;
-    findOne(id: string): Promise<{
-        groups: {
-            id: number;
-            name: string;
-            createdAt: Date;
-            description: string;
-            ownerId: number;
-        }[] | undefined;
-        membership: undefined;
-        id?: number | undefined;
-        email?: string | undefined;
-        name?: string | null | undefined;
-        createdAt?: Date | undefined;
-        updatedAt?: Date | undefined;
-        status?: import(".prisma/client").$Enums.Status | undefined;
-        password?: string | undefined;
-    }>;
+    findOne(id: string): Promise<any>;
     register(registerDto: Prisma.UserCreateInput): Promise<{
         access_token: string;
     }>;
@@ -45,6 +29,9 @@ export declare class UsersController {
         password: string;
     }): Promise<{
         access_token: string;
+    }>;
+    follow(followingId: string, request: any): Promise<{
+        message: string;
     }>;
     update(id: string, updateUserDto: Prisma.UserUpdateInput): Promise<{
         id: number;

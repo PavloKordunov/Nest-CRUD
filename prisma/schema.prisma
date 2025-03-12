@@ -15,10 +15,23 @@ model User {
   updatedAt  DateTime  @updatedAt
   status     Status
   password   String
+  following  Follow[] @relation("Following")
+  followers  Follow[] @relation("Follower")
 
   post       Post[]
   groups     Group[] @relation("GroupOwner")
   membership GroupSubsription[]
+}
+
+model Follow {
+  id            Int    @id @default(autoincrement())
+  followerId    Int
+  followingId   Int
+
+  follower      User   @relation("Follower", fields: [followerId], references: [id])
+  following     User   @relation("Following", fields: [followingId], references: [id])
+
+  @@unique([followerId, followingId])
 }
 
 model Group {
@@ -30,6 +43,7 @@ model Group {
 
   owner        User      @relation("GroupOwner", fields: [ownerId], references: [id])
   
+  posts        Post[]
   members      GroupSubsription[]
 }
 
@@ -41,6 +55,8 @@ model GroupSubsription {
 
   user      User    @relation(fields: [userId], references: [id])
   group     Group   @relation(fields: [groupId], references: [id])
+
+  @@unique([userId, groupId])
 }
 
 model Post{
@@ -49,7 +65,10 @@ model Post{
   description   String
 
   userId        Int
+  groupId       Int
+
   user          User    @relation(fields: [userId], references: [id])
+  group         Group   @relation(fields: [groupId], references: [id])
 }
 
 enum Status {

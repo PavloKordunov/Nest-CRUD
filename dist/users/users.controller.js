@@ -34,6 +34,12 @@ let UsersController = class UsersController {
     login(loginDto) {
         return this.usersService.login(loginDto.email, loginDto.password);
     }
+    async follow(followingId, request) {
+        console.log("Decoded JWT User:", request.user);
+        const followerId = request.user.sub;
+        console.log(`Trying to follow: followerId=${followerId}, followingId=${followingId}`);
+        return this.usersService.follow(followerId, +followingId);
+    }
     update(id, updateUserDto) {
         return this.usersService.update(+id, updateUserDto);
     }
@@ -70,6 +76,15 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "login", null);
+__decorate([
+    (0, common_1.UseGuards)(jwtGuard_1.JwtGuard),
+    (0, common_1.Post)('follow/:id'),
+    __param(0, (0, common_1.Param)("id")),
+    __param(1, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "follow", null);
 __decorate([
     (0, common_1.UseGuards)(jwtGuard_1.JwtGuard),
     (0, common_1.Patch)(':id'),

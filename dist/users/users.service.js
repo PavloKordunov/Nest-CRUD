@@ -63,13 +63,19 @@ let UsersService = class UsersService {
     }
     async findOne(id) {
         const user = await this.dataBaseService.user.findUnique({
-            where: {
-                id,
-            },
+            where: { id },
             include: {
-                membership: {
-                    include: {
-                        group: true
+                membership: { include: { group: true } },
+                followers: {
+                    select: {
+                        followerId: true,
+                        follower: { select: { id: true, name: true } }
+                    }
+                },
+                following: {
+                    select: {
+                        followingId: true,
+                        following: { select: { id: true, name: true } }
                     }
                 }
             }
@@ -77,8 +83,36 @@ let UsersService = class UsersService {
         return {
             ...user,
             groups: user?.membership.map(m => m.group),
+            followers: user?.followers.map(f => f.follower),
+            following: user?.following.map(f => f.following),
             membership: undefined
         };
+    }
+    async follow(followerId, followingId) {
+        if (followerId === followingId) {
+            throw new common_1.BadRequestException("You can't follow yourself.");
+        }
+        const existingFollow = await this.dataBaseService.follow.findUnique({
+            where: {
+                followerId_followingId: { followerId, followingId }
+            }
+        });
+        if (existingFollow) {
+            await this.dataBaseService.follow.delete({
+                where: { id: existingFollow.id }
+            });
+            return { message: "Unfollowed successfully" };
+        }
+        else {
+            console.log(`Trying to follow: followerId=${followerId}, followingId=${followingId}`);
+            await this.dataBaseService.follow.create({
+                data: {
+                    followerId,
+                    followingId
+                }
+            });
+            return { message: "Followed successfully" };
+        }
     }
     async update(id, updateUserDto) {
         return this.dataBaseService.user.update({

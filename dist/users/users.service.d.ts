@@ -31,22 +31,9 @@ export declare class UsersService {
     generateToken(user: any): Promise<{
         access_token: string;
     }>;
-    findOne(id: number): Promise<{
-        groups: {
-            id: number;
-            name: string;
-            createdAt: Date;
-            description: string;
-            ownerId: number;
-        }[] | undefined;
-        membership: undefined;
-        id?: number | undefined;
-        email?: string | undefined;
-        name?: string | null | undefined;
-        createdAt?: Date | undefined;
-        updatedAt?: Date | undefined;
-        status?: import(".prisma/client").$Enums.Status | undefined;
-        password?: string | undefined;
+    findOne(id: number): Promise<any>;
+    follow(followerId: number, followingId: number): Promise<{
+        message: string;
     }>;
     update(id: number, updateUserDto: Prisma.UserUpdateInput): Promise<{
         id: number;

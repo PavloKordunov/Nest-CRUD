@@ -19,10 +19,10 @@ export class PostsController {
 
     @UseGuards(JwtGuard)
     @Post()
-    create(@Body() createPostDto: { title: string; description: string }, @Req() request: any) {
+    create(@Body() createPostDto: { title: string; description: string, groupId: string }, @Req() request: any) {
         const userId = request.user.sub; 
         console.log(userId)
-        return this.postService.create({ ...createPostDto, userId });
+        return this.postService.create({ ...createPostDto, groupId: +createPostDto.groupId, userId });
     }
 
     @UseGuards(JwtGuard)
