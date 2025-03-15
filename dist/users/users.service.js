@@ -59,7 +59,7 @@ let UsersService = class UsersService {
         return this.generateToken(user);
     }
     async generateToken(user) {
-        return { access_token: this.jwtService.sign({ sub: user.id, email: user.email }) };
+        return { access_token: this.jwtService.sign({ sub: user.id, email: user.email, status: user.status }) };
     }
     async findOne(id) {
         const user = await this.dataBaseService.user.findUnique({

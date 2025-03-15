@@ -16,6 +16,8 @@ const jwtGuard_1 = require("./guards/jwtGuard");
 const jwt_1 = require("@nestjs/jwt");
 const posts_module_1 = require("./posts/posts.module");
 const groups_module_1 = require("./groups/groups.module");
+const topics_module_1 = require("./topics/topics.module");
+const RoleGuard_1 = require("./guards/RoleGuard");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -30,9 +32,14 @@ exports.AppModule = AppModule = __decorate([
             }),
             posts_module_1.PostsModule,
             groups_module_1.GroupsModule,
+            topics_module_1.TopicsModule,
         ],
         controllers: [app_controller_1.AppController],
-        providers: [app_service_1.AppService, jwtGuard_1.JwtGuard],
+        providers: [
+            app_service_1.AppService,
+            jwtGuard_1.JwtGuard,
+            RoleGuard_1.RolesGuard,
+        ],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

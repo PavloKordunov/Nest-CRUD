@@ -71,7 +71,13 @@ model Post{
   group         Group   @relation(fields: [groupId], references: [id])
 }
 
+model Topic {
+  id            Int     @id @default(autoincrement())
+  title         String
+  description   String
+}
+
 enum Status {
-  ACTIVE
-  INACTIVE
+  User
+  Admin
 }

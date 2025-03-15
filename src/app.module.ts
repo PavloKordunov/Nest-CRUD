@@ -7,6 +7,9 @@ import { JwtGuard } from './guards/jwtGuard';
 import { JwtModule } from '@nestjs/jwt';
 import { PostsModule } from './posts/posts.module';
 import { GroupsModule } from './groups/groups.module';
+import { TopicsModule } from './topics/topics.module';
+import { RolesGuard } from './guards/RoleGuard';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -18,8 +21,13 @@ import { GroupsModule } from './groups/groups.module';
     }),
     PostsModule,
     GroupsModule,
+    TopicsModule,
   ],
   controllers: [AppController],
-  providers: [AppService, JwtGuard],
+  providers: [
+    AppService,
+    JwtGuard,
+    RolesGuard,
+  ],
 })
 export class AppModule {}

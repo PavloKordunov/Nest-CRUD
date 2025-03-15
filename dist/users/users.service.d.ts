@@ -5,7 +5,7 @@ export declare class UsersService {
     private readonly dataBaseService;
     private jwtService;
     constructor(dataBaseService: DatabaseService, jwtService: JwtService);
-    findAll(status?: "ACTIVE" | "INACTIVE"): Promise<{
+    findAll(status?: "User" | "Admin"): Promise<{
         groups: {
             id: number;
             name: string;

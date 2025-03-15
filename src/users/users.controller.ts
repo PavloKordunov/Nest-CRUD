@@ -8,7 +8,7 @@ export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
     @Get()
-    findAll(@Query('status') status?: "ACTIVE" | "INACTIVE"){
+    findAll(@Query('status') status?: "User" | "Admin"){
         return this.usersService.findAll(status)
     }
 
@@ -30,7 +30,7 @@ export class UsersController {
     @UseGuards(JwtGuard)
     @Post('follow/:id')
     async follow(@Param("id") followingId: string, @Req() request: any) {
-        console.log("Decoded JWT User:", request.user);  // Перевіряємо, що приходить у request.user
+        console.log("Decoded JWT User:", request.user); 
         const followerId = request.user.sub;
         console.log(`Trying to follow: followerId=${followerId}, followingId=${followingId}`);
         

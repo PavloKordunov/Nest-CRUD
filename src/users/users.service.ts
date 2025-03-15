@@ -9,7 +9,7 @@ import { group } from 'console';
 export class UsersService {
     constructor(private readonly dataBaseService: DatabaseService, private jwtService: JwtService) {}
 
-    async findAll(status?: "ACTIVE" | "INACTIVE") {
+    async findAll(status?: "User" | "Admin") {
         const users = await this.dataBaseService.user.findMany({
             where: status ? { status } : undefined,
             include: {
@@ -55,7 +55,7 @@ export class UsersService {
     }
 
     async generateToken(user: any) {
-        return {access_token : this.jwtService.sign({ sub: user.id, email: user.email })}
+        return {access_token : this.jwtService.sign({ sub: user.id, email: user.email, status: user.status })}
     }
 
     async findOne(id: number) {
