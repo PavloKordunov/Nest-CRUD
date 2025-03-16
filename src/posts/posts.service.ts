@@ -31,6 +31,28 @@ export class PostsService {
         })
     }
 
+    async getComments(postId: number){
+        return this.dataBaseService.comment.findMany({
+            where: {
+                postId
+            },
+            include: {
+                user: {
+                    select: {name: true, email: true }
+                },
+                replies: {
+                    select: {
+                        user: {
+                            select: {name: true, email: true }
+                        },
+                        replies: true
+                    }
+                }
+            },
+            orderBy: { createdAt: "asc" }
+        })
+    }
+
     async create(createPostDto: { title: string; description: string, groupId: number, userId: number }) {
         return this.dataBaseService.post.create({
             data: {
@@ -40,6 +62,17 @@ export class PostsService {
                 group: {connect: {id: createPostDto.groupId}},
             },
             include: {user: {select: {name: true}}}
+        })
+    }
+
+    async commentPost(id: number, userId: number, text: string, parentId?: number){
+        return this.dataBaseService.comment.create({
+            data: {
+                userId,
+                postId: id,
+                text,
+                parentId
+            }
         })
     }
 

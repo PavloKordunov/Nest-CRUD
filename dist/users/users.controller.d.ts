@@ -6,16 +6,16 @@ export declare class UsersController {
     findAll(status?: "User" | "Admin"): Promise<{
         groups: {
             id: number;
-            description: string;
             name: string;
-            ownerId: number;
             createdAt: Date;
+            description: string;
+            ownerId: number;
         }[];
         membership: undefined;
         id: number;
+        email: string;
         name: string | null;
         createdAt: Date;
-        email: string;
         updatedAt: Date;
         status: import(".prisma/client").$Enums.Status;
         password: string;
@@ -35,18 +35,18 @@ export declare class UsersController {
     }>;
     update(id: string, updateUserDto: Prisma.UserUpdateInput): Promise<{
         id: number;
+        email: string;
         name: string | null;
         createdAt: Date;
-        email: string;
         updatedAt: Date;
         status: import(".prisma/client").$Enums.Status;
         password: string;
     }>;
     delete(id: string): Promise<{
         id: number;
+        email: string;
         name: string | null;
         createdAt: Date;
-        email: string;
         updatedAt: Date;
         status: import(".prisma/client").$Enums.Status;
         password: string;

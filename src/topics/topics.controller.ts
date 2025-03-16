@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { TopicsService } from './topics.service';
 import { Roles } from 'src/guards/roles.decorator';
 import { JwtGuard } from 'src/guards/jwtGuard';
@@ -36,4 +36,16 @@ export class TopicsController {
     delete(@Param("id") id: string){
         return this.topicService.delete(+id)
     }
+
+    @UseGuards(JwtGuard)
+    @Post(":id/comments")
+    commentPost(@Param('id') id: string, @Req() request: any, @Body() createCommentDto: {text: string, parentId?: number}){
+        const userId = request.user.sub
+        return this.topicService.commentTopic(+id, userId, createCommentDto.text, createCommentDto.parentId )
+    }
+
+    @Get(":id/comments")
+    getComments(@Param('id') id: string) {
+        return this.topicService.getComments(+id);
+    }    
 }

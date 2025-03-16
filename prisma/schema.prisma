@@ -21,6 +21,7 @@ model User {
   post       Post[]
   groups     Group[] @relation("GroupOwner")
   membership GroupSubsription[]
+  comments   Comment[]
 }
 
 model Follow {
@@ -69,12 +70,31 @@ model Post{
 
   user          User    @relation(fields: [userId], references: [id])
   group         Group   @relation(fields: [groupId], references: [id])
+  comments      Comment[]
+}
+
+model Comment {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  postId      Int?
+  topicId     Int?
+  parentId    Int?  
+  text        String
+  createdAt   DateTime  @default(now())
+
+  user        User     @relation(fields: [userId], references: [id])
+  post        Post?    @relation(fields: [postId], references: [id])
+  topic       Topic?   @relation(fields: [topicId], references: [id])
+  parent      Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies     Comment[] @relation("CommentReplies")
 }
 
 model Topic {
   id            Int     @id @default(autoincrement())
   title         String
   description   String
+
+  comments      Comment[] 
 }
 
 enum Status {

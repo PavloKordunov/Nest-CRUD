@@ -36,4 +36,15 @@ export class PostsController {
         return this.postService.delete(+id)
     }
 
+    @UseGuards(JwtGuard)
+    @Post(":id/comments")
+    commentPost(@Param('id') id: string, @Req() request: any, @Body() createCommentDto: {text: string, parentId?: number}){
+        const userId = request.user.sub
+        return this.postService.commentPost(+id, userId, createCommentDto.text, createCommentDto.parentId )
+    }
+
+    @Get(":id/comments")
+    getComments(@Param('id') id: string) {
+        return this.postService.getComments(+id);
+    }
 }
