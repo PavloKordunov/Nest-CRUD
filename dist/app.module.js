@@ -18,6 +18,8 @@ const posts_module_1 = require("./posts/posts.module");
 const groups_module_1 = require("./groups/groups.module");
 const topics_module_1 = require("./topics/topics.module");
 const RoleGuard_1 = require("./guards/RoleGuard");
+const messages_service_1 = require("./messages/messages.service");
+const messages_module_1 = require("./messages/messages.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -33,12 +35,14 @@ exports.AppModule = AppModule = __decorate([
             posts_module_1.PostsModule,
             groups_module_1.GroupsModule,
             topics_module_1.TopicsModule,
+            messages_module_1.MessagesModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [
             app_service_1.AppService,
             jwtGuard_1.JwtGuard,
             RoleGuard_1.RolesGuard,
+            messages_service_1.MessagesService,
         ],
     })
 ], AppModule);

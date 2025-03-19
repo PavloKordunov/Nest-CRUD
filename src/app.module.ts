@@ -10,6 +10,8 @@ import { GroupsModule } from './groups/groups.module';
 import { TopicsModule } from './topics/topics.module';
 import { RolesGuard } from './guards/RoleGuard';
 import { APP_GUARD } from '@nestjs/core';
+import { MessagesService } from './messages/messages.service';
+import { MessagesModule } from './messages/messages.module';
 
 @Module({
   imports: [
@@ -22,12 +24,14 @@ import { APP_GUARD } from '@nestjs/core';
     PostsModule,
     GroupsModule,
     TopicsModule,
+    MessagesModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
     JwtGuard,
     RolesGuard,
+    MessagesService,
   ],
 })
 export class AppModule {}
