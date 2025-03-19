@@ -1,7 +1,9 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { Prisma } from '@prisma/client';
 import { JwtGuard } from 'src/guards/jwtGuard';
+import { CreateUserDto } from './dto/CreateUserDto';
+import { LoginUserDto } from './dto/LoginUserDto';
+import { UpdateUserDto } from './dto/UpdateUserDto';
 
 @Controller('users')
 export class UsersController {
@@ -18,13 +20,13 @@ export class UsersController {
     }
 
     @Post('register')
-    register(@Body() registerDto: Prisma.UserCreateInput) {
-        return this.usersService.register(registerDto)
+    register(@Body() createUserDto: CreateUserDto) {
+        return this.usersService.register(createUserDto)
     }
 
     @Post('login')
-    login(@Body() loginDto: {email: string, password: string} ){
-        return this.usersService.login(loginDto.email, loginDto.password)
+    login(@Body() loginUserDto: LoginUserDto ){
+        return this.usersService.login(loginUserDto)
     }
 
     @UseGuards(JwtGuard)
@@ -39,7 +41,7 @@ export class UsersController {
     
     @UseGuards(JwtGuard)
     @Patch(':id')
-    update(@Param('id') id: string, @Body() updateUserDto: Prisma.UserUpdateInput){
+    update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto){
         return this.usersService.update(+id, updateUserDto)
     }
 

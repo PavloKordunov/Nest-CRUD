@@ -1,5 +1,7 @@
 import { UsersService } from './users.service';
-import { Prisma } from '@prisma/client';
+import { CreateUserDto } from './dto/CreateUserDto';
+import { LoginUserDto } from './dto/LoginUserDto';
+import { UpdateUserDto } from './dto/UpdateUserDto';
 export declare class UsersController {
     private readonly usersService;
     constructor(usersService: UsersService);
@@ -21,19 +23,16 @@ export declare class UsersController {
         password: string;
     }[]>;
     findOne(id: string): Promise<any>;
-    register(registerDto: Prisma.UserCreateInput): Promise<{
+    register(createUserDto: CreateUserDto): Promise<{
         access_token: string;
     }>;
-    login(loginDto: {
-        email: string;
-        password: string;
-    }): Promise<{
+    login(loginUserDto: LoginUserDto): Promise<{
         access_token: string;
     }>;
     follow(followingId: string, request: any): Promise<{
         message: string;
     }>;
-    update(id: string, updateUserDto: Prisma.UserUpdateInput): Promise<{
+    update(id: string, updateUserDto: UpdateUserDto): Promise<{
         id: number;
         email: string;
         name: string | null;

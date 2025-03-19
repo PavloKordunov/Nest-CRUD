@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
+import { CreateGroupDto } from './dto/createGroupDto';
+import { UpdateGroupDto } from './dto/updateGroupDto';
 
 @Injectable()
 export class GroupsService {
@@ -28,12 +30,12 @@ export class GroupsService {
         })) 
     }
 
-    async create(createGroupDto: { name: string; description: string, ownerId: number }) {
+    async create(createGroupDto: CreateGroupDto, ownerId:number) {
         return this.dataBaseService.group.create({
             data: {
                 name: createGroupDto.name,
                 description: createGroupDto.description,
-                ownerId: createGroupDto.ownerId
+                ownerId: ownerId
             }
         })
     }
@@ -79,7 +81,7 @@ export class GroupsService {
         })
     }
 
-    async update(id: number, updateGroupDto: { name: string; description: string, ownerId: number }) {
+    async update(id: number, updateGroupDto: UpdateGroupDto, ownerId: number) {
         return this.dataBaseService.group.update({
             where: {
                 id,
@@ -87,7 +89,7 @@ export class GroupsService {
             data: {
                 name: updateGroupDto.name,
                 description: updateGroupDto.description,
-                ownerId: updateGroupDto.ownerId
+                ownerId
             }
         })
     }

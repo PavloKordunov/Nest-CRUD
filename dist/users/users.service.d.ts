@@ -1,6 +1,8 @@
-import { Prisma } from '@prisma/client';
 import { DatabaseService } from 'src/database/database.service';
 import { JwtService } from '@nestjs/jwt';
+import { CreateUserDto } from './dto/CreateUserDto';
+import { UpdateUserDto } from './dto/UpdateUserDto';
+import { LoginUserDto } from './dto/LoginUserDto';
 export declare class UsersService {
     private readonly dataBaseService;
     private jwtService;
@@ -22,10 +24,10 @@ export declare class UsersService {
         status: import(".prisma/client").$Enums.Status;
         password: string;
     }[]>;
-    register(registerDto: Prisma.UserCreateInput): Promise<{
+    register(createUserDto: CreateUserDto): Promise<{
         access_token: string;
     }>;
-    login(email: string, password: string): Promise<{
+    login(loginUserDto: LoginUserDto): Promise<{
         access_token: string;
     }>;
     generateToken(user: any): Promise<{
@@ -35,7 +37,7 @@ export declare class UsersService {
     follow(followerId: number, followingId: number): Promise<{
         message: string;
     }>;
-    update(id: number, updateUserDto: Prisma.UserUpdateInput): Promise<{
+    update(id: number, updateUserDto: UpdateUserDto): Promise<{
         id: number;
         email: string;
         name: string | null;

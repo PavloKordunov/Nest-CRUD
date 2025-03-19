@@ -3,6 +3,8 @@ import { TopicsService } from './topics.service';
 import { Roles } from 'src/guards/roles.decorator';
 import { JwtGuard } from 'src/guards/jwtGuard';
 import { RolesGuard } from 'src/guards/RoleGuard';
+import { CreateTopicDto } from './dto/CreateTopicDto';
+import { UpdateTopicDto } from './dto/UpdateTopicDto';
 
 @UseGuards(JwtGuard, RolesGuard)
 @Controller('topics')
@@ -21,13 +23,13 @@ export class TopicsController {
 
     @Post()
     @Roles('Admin')
-    create(@Body() createTopicDto: {title: string, description: string}) {
+    create(@Body() createTopicDto: CreateTopicDto) {
         return this.topicService.create(createTopicDto)
     }
 
     @Patch(":id")
     @Roles("Admin")
-    update(@Param('id') id: string, @Body() updateTopicDto: {title: string, description: string} ){
+    update(@Param('id') id: string, @Body() updateTopicDto: UpdateTopicDto ){
         return this.topicService.update(+id, updateTopicDto)
     }
 

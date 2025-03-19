@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
+import { UpdateTopicDto } from './dto/UpdateTopicDto';
 
 @Injectable()
 export class TopicsService {
@@ -56,7 +57,7 @@ export class TopicsService {
         })
     }
 
-    async update(id: number, updateTopicDto: {title: string, description: string}){
+    async update(id: number, updateTopicDto: UpdateTopicDto){
         return this.dataBaseService.topic.update({
             where: {
                 id,

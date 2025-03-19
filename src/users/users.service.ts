@@ -3,7 +3,9 @@ import { Prisma } from '@prisma/client';
 import { DatabaseService } from 'src/database/database.service';
 import * as bcrypt from 'bcrypt'
 import { JwtService } from '@nestjs/jwt';
-import { group } from 'console';
+import { CreateUserDto } from './dto/CreateUserDto';
+import { UpdateUserDto } from './dto/UpdateUserDto';
+import { LoginUserDto } from './dto/LoginUserDto';
 
 @Injectable()
 export class UsersService {
@@ -29,26 +31,26 @@ export class UsersService {
         )
     }
 
-    async register(registerDto: Prisma.UserCreateInput){
-        const hashedpassword = await bcrypt.hash(registerDto.password, 10)
+    async register(createUserDto: CreateUserDto){
+        const hashedpassword = await bcrypt.hash(createUserDto.password, 10)
         
         const user = await this.dataBaseService.user.create({
-            data: {...registerDto, password: hashedpassword}
+            data: {...createUserDto, password: hashedpassword}
         })
 
         return this.generateToken(user)
     }
 
-    async login(email: string, password: string) {
+    async login(loginUserDto: LoginUserDto) {
         const user = await this.dataBaseService.user.findUnique({
             where: {
-                email,
+                email: loginUserDto.email,
             }
         })
 
         if(!user) throw new UnauthorizedException('Invalid credentials')
 
-        const isPasswordValid = await bcrypt.compare(password, user.password)
+        const isPasswordValid = await bcrypt.compare(loginUserDto.password, user.password)
         if(!isPasswordValid) throw new UnauthorizedException('Invalid credentials')
 
         return this.generateToken(user)
@@ -118,7 +120,7 @@ export class UsersService {
 
     }
 
-    async update(id: number, updateUserDto: Prisma.UserUpdateInput) {
+    async update(id: number, updateUserDto: UpdateUserDto) {
         return this.dataBaseService.user.update({
             where: {
                 id,

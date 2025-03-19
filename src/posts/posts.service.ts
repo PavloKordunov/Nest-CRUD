@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';;
 import { DatabaseService } from 'src/database/database.service';
+import { CreatePostDto } from './dto/createPostDto';
+import { UpdatePostDto } from './dto/UpdatePostDto';
 
 @Injectable()
 export class PostsService {
@@ -53,12 +55,12 @@ export class PostsService {
         })
     }
 
-    async create(createPostDto: { title: string; description: string, groupId: number, userId: number }) {
+    async create(createPostDto: CreatePostDto, userId: number) {
         return this.dataBaseService.post.create({
             data: {
                 title: createPostDto.title,
                 description: createPostDto.description,
-                user: {connect: {id: createPostDto.userId}},
+                user: {connect: {id: userId}},
                 group: {connect: {id: createPostDto.groupId}},
             },
             include: {user: {select: {name: true}}}
@@ -76,12 +78,12 @@ export class PostsService {
         })
     }
 
-    async update(id: number, updateUserDto: {title: string, description: string}){
+    async update(id: number, updatePostDto: UpdatePostDto){
         return this.dataBaseService.post.update({
             where: {
                 id,
             },
-            data: updateUserDto,
+            data: updatePostDto,
             include: {
                 user: {
                     select: {name: true}

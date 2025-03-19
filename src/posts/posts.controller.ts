@@ -2,6 +2,8 @@ import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards } fro
 import { PostsService } from './posts.service';
 import { JwtGuard } from 'src/guards/jwtGuard';
 import { Prisma } from '@prisma/client';
+import { CreatePostDto } from './dto/createPostDto';
+import { UpdatePostDto } from './dto/UpdatePostDto';
 
 @Controller('posts')
 export class PostsController {
@@ -19,16 +21,16 @@ export class PostsController {
 
     @UseGuards(JwtGuard)
     @Post()
-    create(@Body() createPostDto: { title: string; description: string, groupId: string }, @Req() request: any) {
+    create(@Body() createPostDto: CreatePostDto, @Req() request: any) {
         const userId = request.user.sub; 
         console.log(userId)
-        return this.postService.create({ ...createPostDto, groupId: +createPostDto.groupId, userId });
+        return this.postService.create(createPostDto, userId);
     }
 
     @UseGuards(JwtGuard)
     @Patch(':id')
-    update(@Param('id') id: string, @Body() updateUserDto: {title: string, description: string}){
-        return this.postService.update(+id, updateUserDto)
+    update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto){
+        return this.postService.update(+id, updatePostDto)
     }
 
     @Delete(':id')

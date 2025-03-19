@@ -1,6 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { GroupsService } from './groups.service';
 import { JwtGuard } from 'src/guards/jwtGuard';
+import { CreateGroupDto } from './dto/createGroupDto';
+import { UpdateGroupDto } from './dto/updateGroupDto';
 
 @Controller('groups')
 export class GroupsController {
@@ -18,16 +20,16 @@ export class GroupsController {
 
     @UseGuards(JwtGuard)
     @Post()
-    create(@Body() createGroupDto: {name: string, description: string}, @Req() request: any){
+    create(@Body() createGroupDto: CreateGroupDto, @Req() request: any){
         const ownerId = request.user.sub
-        return this.groupService.create({...createGroupDto, ownerId})
+        return this.groupService.create(createGroupDto, ownerId)
     }
 
     @UseGuards(JwtGuard)
     @Patch(':id')
-    update(@Param("id") id: string, @Body() updateGroupDto: {name: string, description: string}, @Req() request: any) {
+    update(@Param("id") id: string, @Body() updateGroupDto: UpdateGroupDto, @Req() request: any) {
         const ownerId = request.user.sub
-        return this.groupService.update(+id, {...updateGroupDto, ownerId})
+        return this.groupService.update(+id, updateGroupDto, ownerId)
     }
 
     @UseGuards(JwtGuard)
