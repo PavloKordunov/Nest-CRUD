@@ -3,36 +3,13 @@ import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from './dto/CreateUserDto';
 import { UpdateUserDto } from './dto/UpdateUserDto';
 import { LoginUserDto } from './dto/LoginUserDto';
+import { CacheService } from 'src/cache/cache.service';
 export declare class UsersService {
     private readonly dataBaseService;
     private jwtService;
-    constructor(dataBaseService: DatabaseService, jwtService: JwtService);
-    findAll(status?: "User" | "Admin"): Promise<{
-        groups: {
-            id: number;
-            name: string;
-            createdAt: Date;
-            description: string;
-            ownerId: number;
-        }[];
-        following: {
-            id: number;
-            followerId: number;
-            followingId: number;
-        }[];
-        followers: {
-            id: number;
-            followerId: number;
-            followingId: number;
-        }[];
-        id: number;
-        email: string;
-        name: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-        status: import(".prisma/client").$Enums.Status;
-        password: string;
-    }[]>;
+    private readonly cacheService;
+    constructor(dataBaseService: DatabaseService, jwtService: JwtService, cacheService: CacheService);
+    findAll(status?: "User" | "Admin", page?: number, limit?: number): Promise<{}>;
     register(createUserDto: CreateUserDto): Promise<{
         access_token: string;
     }>;
@@ -42,34 +19,26 @@ export declare class UsersService {
     generateToken(user: any): Promise<{
         access_token: string;
     }>;
-    findOne(id: number): Promise<{
-        id: number;
-        email: string;
-        name: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-        status: import(".prisma/client").$Enums.Status;
-        password: string;
-    }>;
+    findOne(id: number): Promise<{}>;
     follow(followerId: number, followingId: number): Promise<{
         message: string;
     }>;
     update(id: number, updateUserDto: UpdateUserDto): Promise<{
-        id: number;
         email: string;
         name: string | null;
+        password: string;
+        status: import(".prisma/client").$Enums.Status;
+        id: number;
         createdAt: Date;
         updatedAt: Date;
-        status: import(".prisma/client").$Enums.Status;
-        password: string;
     }>;
     delete(id: number): Promise<{
-        id: number;
         email: string;
         name: string | null;
+        password: string;
+        status: import(".prisma/client").$Enums.Status;
+        id: number;
         createdAt: Date;
         updatedAt: Date;
-        status: import(".prisma/client").$Enums.Status;
-        password: string;
     }>;
 }

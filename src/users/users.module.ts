@@ -4,6 +4,7 @@ import { UsersController } from './users.controller';
 import { DatabaseService } from 'src/database/database.service';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtGuard } from 'src/guards/jwtGuard';
+import { CacheService } from 'src/cache/cache.service';
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { JwtGuard } from 'src/guards/jwtGuard';
     }),
   ],
   controllers: [UsersController],
-  providers: [UsersService, DatabaseService, JwtGuard],
+  providers: [UsersService, DatabaseService, JwtGuard, CacheService],
   exports: [UsersService],
 })
 export class UsersModule {}

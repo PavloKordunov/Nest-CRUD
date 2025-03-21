@@ -12,6 +12,7 @@ import { RolesGuard } from './guards/RoleGuard';
 import { APP_GUARD } from '@nestjs/core';
 import { MessagesService } from './messages/messages.service';
 import { MessagesModule } from './messages/messages.module';
+import { CacheModule } from './cache/cache.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { MessagesModule } from './messages/messages.module';
     GroupsModule,
     TopicsModule,
     MessagesModule,
+    CacheModule,
   ],
   controllers: [AppController],
   providers: [

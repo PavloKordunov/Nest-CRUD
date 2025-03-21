@@ -20,6 +20,7 @@ const topics_module_1 = require("./topics/topics.module");
 const RoleGuard_1 = require("./guards/RoleGuard");
 const messages_service_1 = require("./messages/messages.service");
 const messages_module_1 = require("./messages/messages.module");
+const cache_module_1 = require("./cache/cache.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -36,6 +37,7 @@ exports.AppModule = AppModule = __decorate([
             groups_module_1.GroupsModule,
             topics_module_1.TopicsModule,
             messages_module_1.MessagesModule,
+            cache_module_1.CacheModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

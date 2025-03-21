@@ -13,6 +13,7 @@ const users_controller_1 = require("./users.controller");
 const database_service_1 = require("../database/database.service");
 const jwt_1 = require("@nestjs/jwt");
 const jwtGuard_1 = require("../guards/jwtGuard");
+const cache_service_1 = require("../cache/cache.service");
 let UsersModule = class UsersModule {
 };
 exports.UsersModule = UsersModule;
@@ -25,7 +26,7 @@ exports.UsersModule = UsersModule = __decorate([
             }),
         ],
         controllers: [users_controller_1.UsersController],
-        providers: [users_service_1.UsersService, database_service_1.DatabaseService, jwtGuard_1.JwtGuard],
+        providers: [users_service_1.UsersService, database_service_1.DatabaseService, jwtGuard_1.JwtGuard, cache_service_1.CacheService],
         exports: [users_service_1.UsersService],
     })
 ], UsersModule);

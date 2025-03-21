@@ -10,8 +10,8 @@ export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
     @Get()
-    findAll(@Query('status') status?: "User" | "Admin"){
-        return this.usersService.findAll(status)
+    findAll(@Query('status') status?: "User" | "Admin", @Query('page') page?: number, @Query('limit') limit?: number){
+        return this.usersService.findAll(status, Number(page), Number(limit))
     }
 
     @Get(':id')

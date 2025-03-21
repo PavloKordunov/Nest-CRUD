@@ -24,8 +24,8 @@ let UsersController = class UsersController {
     constructor(usersService) {
         this.usersService = usersService;
     }
-    findAll(status) {
-        return this.usersService.findAll(status);
+    findAll(status, page, limit) {
+        return this.usersService.findAll(status, Number(page), Number(limit));
     }
     findOne(id) {
         return this.usersService.findOne(+id);
@@ -53,8 +53,10 @@ exports.UsersController = UsersController;
 __decorate([
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)('status')),
+    __param(1, (0, common_1.Query)('page')),
+    __param(2, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Number, Number]),
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "findAll", null);
 __decorate([
