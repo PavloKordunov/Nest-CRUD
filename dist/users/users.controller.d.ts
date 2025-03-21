@@ -13,7 +13,16 @@ export declare class UsersController {
             description: string;
             ownerId: number;
         }[];
-        membership: undefined;
+        following: {
+            id: number;
+            followerId: number;
+            followingId: number;
+        }[];
+        followers: {
+            id: number;
+            followerId: number;
+            followingId: number;
+        }[];
         id: number;
         email: string;
         name: string | null;
@@ -22,14 +31,22 @@ export declare class UsersController {
         status: import(".prisma/client").$Enums.Status;
         password: string;
     }[]>;
-    findOne(id: string): Promise<any>;
+    findOne(id: string): Promise<{
+        id: number;
+        email: string;
+        name: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        status: import(".prisma/client").$Enums.Status;
+        password: string;
+    }>;
     register(createUserDto: CreateUserDto): Promise<{
         access_token: string;
     }>;
     login(loginUserDto: LoginUserDto): Promise<{
         access_token: string;
     }>;
-    follow(followingId: string, request: any): Promise<{
+    follow(followerId: string, request: any): Promise<{
         message: string;
     }>;
     update(id: string, updateUserDto: UpdateUserDto): Promise<{

@@ -1,6 +1,5 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
-import { DatabaseService } from 'src/database/database.service';
+import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { DatabaseService } from '../database/database.service';
 import * as bcrypt from 'bcrypt'
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from './dto/CreateUserDto';
@@ -12,128 +11,190 @@ export class UsersService {
     constructor(private readonly dataBaseService: DatabaseService, private jwtService: JwtService) {}
 
     async findAll(status?: "User" | "Admin") {
-        const users = await this.dataBaseService.user.findMany({
-            where: status ? { status } : undefined,
-            include: {
-                membership: {
-                    include: {
-                        group: true,
-                    },
-                },
-            },
-        });
+        try {
+            if (status && !["User", "Admin"].includes(status)) {
+                throw new BadRequestException("Invalid status value. Allowed values: 'User' or 'Admin'");
+            }
 
-        return users.map(user => ({
-            ...user,
-            groups: user.membership.map(m => m.group),
-            membership: undefined
-        })
-        )
+            const users = await this.dataBaseService.user.findMany({
+                where: status ? { status } : {},
+                include: {
+                    membership: {
+                        include: {
+                            group: true,
+                        },
+                    },
+                    followers: true,
+                    following: true
+                },
+            });
+
+            return users.map(({ membership, ...user }) => ({
+                ...user,
+                groups: membership?.map(m => m.group) || [], 
+            }));
+        } catch (error) {
+            throw new BadRequestException(`Failed to fetch users: ${error.message}`);
+        }
     }
 
-    async register(createUserDto: CreateUserDto){
-        const hashedpassword = await bcrypt.hash(createUserDto.password, 10)
-        
-        const user = await this.dataBaseService.user.create({
-            data: {...createUserDto, password: hashedpassword}
-        })
-
-        return this.generateToken(user)
+    async register(createUserDto: CreateUserDto) {
+        try {
+            const existingUser = await this.dataBaseService.user.findUnique({
+                where: { email: createUserDto.email },
+            });
+    
+            if (existingUser) {
+                throw new ConflictException('Email is already in use');
+            }
+    
+            const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+            
+            const user = await this.dataBaseService.user.create({
+                data: { ...createUserDto, password: hashedPassword }
+            });
+    
+            return this.generateToken(user);
+        } catch (error) {
+            if (error instanceof ConflictException) {
+                throw error;
+            }
+            throw new InternalServerErrorException(`Failed to register user: ${error.message}`);
+        }
     }
 
     async login(loginUserDto: LoginUserDto) {
-        const user = await this.dataBaseService.user.findUnique({
-            where: {
-                email: loginUserDto.email,
+        try {
+            const user = await this.dataBaseService.user.findUnique({
+                where: { email: loginUserDto.email },
+            });
+    
+            if (!user) {
+                throw new UnauthorizedException('Invalid credentials');
             }
-        })
+    
+            const isPasswordValid = await bcrypt.compare(loginUserDto.password, user.password);
 
-        if(!user) throw new UnauthorizedException('Invalid credentials')
-
-        const isPasswordValid = await bcrypt.compare(loginUserDto.password, user.password)
-        if(!isPasswordValid) throw new UnauthorizedException('Invalid credentials')
-
-        return this.generateToken(user)
+            if (!isPasswordValid) {
+                throw new UnauthorizedException('Invalid credentials');
+            }
+    
+            return this.generateToken(user);
+        } catch (error) {
+            if (error instanceof UnauthorizedException) {
+                throw error;
+            }
+            throw new InternalServerErrorException(`Failed to login: ${error.message}`);
+        }
     }
+    
 
     async generateToken(user: any) {
         return {access_token : this.jwtService.sign({ sub: user.id, email: user.email, status: user.status })}
     }
 
     async findOne(id: number) {
-        const user = await this.dataBaseService.user.findUnique({
-            where: { id },
-            include: {
-                membership: { include: { group: true } },
-                followers: {
-                    select: {
-                        followerId: true,
-                        follower: { select: { id: true, name: true } }
-                    }
-                },
-                following: {
-                    select: {
-                        followingId: true,
-                        following: { select: { id: true, name: true } }
-                    }
-                }
-            }
-        }) as any & { membership: { group: any }[] };
+        try {
+            const user = await this.dataBaseService.user.findUnique({
+                where: { id },
+            });
     
-        return {
-            ...user,
-            groups: user?.membership.map(m => m.group),
-            followers: user?.followers.map(f => f.follower), 
-            following: user?.following.map(f => f.following),
-            membership: undefined
-        };
+            if (!user) {
+                throw new NotFoundException(`User with id ${id} not found`);
+            }
+    
+            return user
+        } catch (error) {
+            throw new NotFoundException(`Failed to fetch user: ${error.message}`);
+        }
     }
+    
     
 
     async follow(followerId: number, followingId: number) {
-        if (followerId === followingId) {
-            throw new BadRequestException("You can't follow yourself.");
-        }
-    
-        const existingFollow = await this.dataBaseService.follow.findUnique({
-            where: {
-                followerId_followingId: { followerId, followingId }
+        try {
+            if (followerId === followingId) {
+                throw new BadRequestException("You can't follow yourself.");
             }
-        });
     
-        if (existingFollow) {
-            await this.dataBaseService.follow.delete({
-                where: { id: existingFollow.id }
+            const followingUser = await this.dataBaseService.user.findUnique({
+                where: { id: followingId }
             });
-            return { message: "Unfollowed successfully" };
-        } else {
-            console.log(`Trying to follow: followerId=${followerId}, followingId=${followingId}`);
-            await this.dataBaseService.follow.create({
-                data: {
-                    followerId,
-                    followingId
+    
+            if (!followingUser) {
+                throw new NotFoundException(`User with ID ${followingId} not found`);
+            }
+    
+            const existingFollow = await this.dataBaseService.follow.findUnique({
+                where: {
+                    followerId_followingId: { followerId, followingId }
                 }
             });
+    
+            if (existingFollow) {
+                await this.dataBaseService.follow.delete({
+                    where: { id: existingFollow.id }
+                });
+                return { message: "Unfollowed successfully" };
+            } 
+    
+            console.log(`Trying to follow: followerId=${followerId}, followingId=${followingId}`);
+    
+            await this.dataBaseService.follow.create({
+                data: { followerId, followingId }
+            });
+    
             return { message: "Followed successfully" };
+        } catch (error) {
+            if (error instanceof BadRequestException || error instanceof NotFoundException) {
+                throw error;
+            }
+            throw new InternalServerErrorException(`Failed to follow user: ${error.message}`);
         }
+    }
     
 
-    }
-
     async update(id: number, updateUserDto: UpdateUserDto) {
-        return this.dataBaseService.user.update({
-            where: {
-                id,
-            },
-            data: updateUserDto,
-        })
+        try {
+            const updateUser = await this.dataBaseService.user.update({
+                where: {
+                    id,
+                },
+                data: updateUserDto,
+            })
+
+            if(!updateUser){
+                throw new NotFoundException("User not found")
+            }
+
+            return updateUser
+        } catch (error) {
+            if (error instanceof NotFoundException) {
+                throw error;
+            }
+            throw new InternalServerErrorException(error.message)
+        }
     }
 
     async delete(id: number) {
-        return this.dataBaseService.user.delete({
-            where : {
-                id,
+        try {
+            const user = await this.dataBaseService.user.delete({
+                where : {
+                    id,
+                }
+            })
+
+            if(!user){
+                throw new NotFoundException("User not found")
             }
-        })
+
+            return user
+        } catch (error) {
+            if (error instanceof NotFoundException) {
+                throw error;
+            }
+            throw new InternalServerErrorException(error.message)
+        }
     }
+
 }

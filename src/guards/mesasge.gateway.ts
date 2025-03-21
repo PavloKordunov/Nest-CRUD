@@ -92,16 +92,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
   
-
-
   private async validateUser(client: Socket): Promise<{ id: number; email: string; status: "User" | "Admin" } | null> {
     try {
   
-      let token = client.handshake.auth?.token;
-      if (!token) {
-        token = client.handshake.query.token as string;
-      }
-  
+       const token = client.handshake.query.token as string;
+
       if (!token) throw new UnauthorizedException("No token provided");
   
       const decoded = this.jwtService.verify(token) as { sub: number; email: string; status: "User" | "Admin" };
@@ -121,6 +116,5 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return null;
     }
   }
-  
   
 }

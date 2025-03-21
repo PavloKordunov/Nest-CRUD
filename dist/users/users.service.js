@@ -22,105 +22,144 @@ let UsersService = class UsersService {
         this.jwtService = jwtService;
     }
     async findAll(status) {
-        const users = await this.dataBaseService.user.findMany({
-            where: status ? { status } : undefined,
-            include: {
-                membership: {
-                    include: {
-                        group: true,
+        try {
+            if (status && !["User", "Admin"].includes(status)) {
+                throw new common_1.BadRequestException("Invalid status value. Allowed values: 'User' or 'Admin'");
+            }
+            const users = await this.dataBaseService.user.findMany({
+                where: status ? { status } : {},
+                include: {
+                    membership: {
+                        include: {
+                            group: true,
+                        },
                     },
+                    followers: true,
+                    following: true
                 },
-            },
-        });
-        return users.map(user => ({
-            ...user,
-            groups: user.membership.map(m => m.group),
-            membership: undefined
-        }));
+            });
+            return users.map(({ membership, ...user }) => ({
+                ...user,
+                groups: membership?.map(m => m.group) || [],
+            }));
+        }
+        catch (error) {
+            throw new common_1.BadRequestException(`Failed to fetch users: ${error.message}`);
+        }
     }
     async register(createUserDto) {
-        const hashedpassword = await bcrypt.hash(createUserDto.password, 10);
-        const user = await this.dataBaseService.user.create({
-            data: { ...createUserDto, password: hashedpassword }
-        });
-        return this.generateToken(user);
+        try {
+            const existingUser = await this.dataBaseService.user.findUnique({
+                where: { email: createUserDto.email },
+            });
+            if (existingUser) {
+                throw new common_1.ConflictException('Email is already in use');
+            }
+            const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+            const user = await this.dataBaseService.user.create({
+                data: { ...createUserDto, password: hashedPassword }
+            });
+            return this.generateToken(user);
+        }
+        catch (error) {
+            if (error instanceof common_1.ConflictException) {
+                throw error;
+            }
+            throw new common_1.InternalServerErrorException(`Failed to register user: ${error.message}`);
+        }
     }
     async login(loginUserDto) {
-        const user = await this.dataBaseService.user.findUnique({
-            where: {
-                email: loginUserDto.email,
+        try {
+            const user = await this.dataBaseService.user.findUnique({
+                where: { email: loginUserDto.email },
+            });
+            if (!user) {
+                throw new common_1.UnauthorizedException('Invalid credentials');
             }
-        });
-        if (!user)
-            throw new common_1.UnauthorizedException('Invalid credentials');
-        const isPasswordValid = await bcrypt.compare(loginUserDto.password, user.password);
-        if (!isPasswordValid)
-            throw new common_1.UnauthorizedException('Invalid credentials');
-        return this.generateToken(user);
+            const isPasswordValid = await bcrypt.compare(loginUserDto.password, user.password);
+            if (!isPasswordValid) {
+                throw new common_1.UnauthorizedException('Invalid credentials');
+            }
+            return this.generateToken(user);
+        }
+        catch (error) {
+            if (error instanceof common_1.UnauthorizedException) {
+                throw error;
+            }
+            throw new common_1.InternalServerErrorException(`Failed to login: ${error.message}`);
+        }
     }
     async generateToken(user) {
         return { access_token: this.jwtService.sign({ sub: user.id, email: user.email, status: user.status }) };
     }
     async findOne(id) {
-        const user = await this.dataBaseService.user.findUnique({
-            where: { id },
-            include: {
-                membership: { include: { group: true } },
-                followers: {
-                    select: {
-                        followerId: true,
-                        follower: { select: { id: true, name: true } }
-                    }
-                },
-                following: {
-                    select: {
-                        followingId: true,
-                        following: { select: { id: true, name: true } }
-                    }
-                }
+        try {
+            const user = await this.dataBaseService.user.findUnique({
+                where: { id },
+            });
+            if (!user) {
+                throw new common_1.NotFoundException(`User with id ${id} not found`);
             }
-        });
-        return {
-            ...user,
-            groups: user?.membership.map(m => m.group),
-            followers: user?.followers.map(f => f.follower),
-            following: user?.following.map(f => f.following),
-            membership: undefined
-        };
+            return user;
+        }
+        catch (error) {
+            throw new common_1.NotFoundException(`Failed to fetch user: ${error.message}`);
+        }
     }
     async follow(followerId, followingId) {
-        if (followerId === followingId) {
-            throw new common_1.BadRequestException("You can't follow yourself.");
-        }
-        const existingFollow = await this.dataBaseService.follow.findUnique({
-            where: {
-                followerId_followingId: { followerId, followingId }
+        try {
+            if (followerId === followingId) {
+                throw new common_1.BadRequestException("You can't follow yourself.");
             }
-        });
-        if (existingFollow) {
-            await this.dataBaseService.follow.delete({
-                where: { id: existingFollow.id }
+            const followingUser = await this.dataBaseService.user.findUnique({
+                where: { id: followingId }
             });
-            return { message: "Unfollowed successfully" };
-        }
-        else {
+            if (!followingUser) {
+                throw new common_1.NotFoundException(`User with ID ${followingId} not found`);
+            }
+            const existingFollow = await this.dataBaseService.follow.findUnique({
+                where: {
+                    followerId_followingId: { followerId, followingId }
+                }
+            });
+            if (existingFollow) {
+                await this.dataBaseService.follow.delete({
+                    where: { id: existingFollow.id }
+                });
+                return { message: "Unfollowed successfully" };
+            }
             console.log(`Trying to follow: followerId=${followerId}, followingId=${followingId}`);
             await this.dataBaseService.follow.create({
-                data: {
-                    followerId,
-                    followingId
-                }
+                data: { followerId, followingId }
             });
             return { message: "Followed successfully" };
         }
+        catch (error) {
+            if (error instanceof common_1.BadRequestException || error instanceof common_1.NotFoundException) {
+                throw error;
+            }
+            throw new common_1.InternalServerErrorException(`Failed to follow user: ${error.message}`);
+        }
     }
     async update(id, updateUserDto) {
-        return this.dataBaseService.user.update({
-            where: {
-                id,
-            },
-            data: updateUserDto,
-        });
+        try {
+            const updateUser = await this.dataBaseService.user.update({
+                where: {
+                    id,
+                },
+                data: updateUserDto,
+            });
+            if (!updateUser) {
+                throw new common_1.NotFoundException("User not found");
+            }
+            return updateUser;
+        }
+        catch (error) {
+            if (error instanceof common_1.NotFoundException) {
+                throw error;
+            }
+            throw new common_1.InternalServerErrorException(error.message);
+        }
     }
     async delete(id) {
         return this.dataBaseService.user.delete({

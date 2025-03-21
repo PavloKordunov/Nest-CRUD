@@ -1,4 +1,4 @@
-import { DatabaseService } from 'src/database/database.service';
+import { DatabaseService } from '../database/database.service';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from './dto/CreateUserDto';
 import { UpdateUserDto } from './dto/UpdateUserDto';
@@ -15,7 +15,16 @@ export declare class UsersService {
             description: string;
             ownerId: number;
         }[];
-        membership: undefined;
+        following: {
+            id: number;
+            followerId: number;
+            followingId: number;
+        }[];
+        followers: {
+            id: number;
+            followerId: number;
+            followingId: number;
+        }[];
         id: number;
         email: string;
         name: string | null;
@@ -33,7 +42,15 @@ export declare class UsersService {
     generateToken(user: any): Promise<{
         access_token: string;
     }>;
-    findOne(id: number): Promise<any>;
+    findOne(id: number): Promise<{
+        id: number;
+        email: string;
+        name: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        status: import(".prisma/client").$Enums.Status;
+        password: string;
+    }>;
     follow(followerId: number, followingId: number): Promise<{
         message: string;
     }>;

@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { JwtGuard } from 'src/guards/jwtGuard';
+import { JwtGuard } from '../guards/jwtGuard';
 import { CreateUserDto } from './dto/CreateUserDto';
 import { LoginUserDto } from './dto/LoginUserDto';
 import { UpdateUserDto } from './dto/UpdateUserDto';
@@ -31,12 +31,12 @@ export class UsersController {
 
     @UseGuards(JwtGuard)
     @Post('follow/:id')
-    async follow(@Param("id") followingId: string, @Req() request: any) {
+    async follow(@Param("id") followerId: string, @Req() request: any) {
         console.log("Decoded JWT User:", request.user); 
-        const followerId = request.user.sub;
+        const followingId = request.user.sub;
         console.log(`Trying to follow: followerId=${followerId}, followingId=${followingId}`);
         
-        return this.usersService.follow(followerId, +followingId);
+        return this.usersService.follow(+followerId, followingId);
     }
     
     @UseGuards(JwtGuard)

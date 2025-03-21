@@ -36,11 +36,11 @@ let UsersController = class UsersController {
     login(loginUserDto) {
         return this.usersService.login(loginUserDto);
     }
-    async follow(followingId, request) {
+    async follow(followerId, request) {
         console.log("Decoded JWT User:", request.user);
-        const followerId = request.user.sub;
+        const followingId = request.user.sub;
         console.log(`Trying to follow: followerId=${followerId}, followingId=${followingId}`);
-        return this.usersService.follow(followerId, +followingId);
+        return this.usersService.follow(+followerId, followingId);
     }
     update(id, updateUserDto) {
         return this.usersService.update(+id, updateUserDto);
