@@ -5,7 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from './dto/CreateUserDto';
 import { UpdateUserDto } from './dto/UpdateUserDto';
 import { LoginUserDto } from './dto/LoginUserDto';
-import { CacheService } from 'src/cache/cache.service';
+import { CacheService } from '../cache/cache.service';
 
 @Injectable()
 export class UsersService {
@@ -209,23 +209,25 @@ export class UsersService {
 
     async delete(id: number) {
         try {
-            const user = await this.dataBaseService.user.delete({
-                where : {
-                    id,
-                }
-            })
-
-            if(!user){
-                throw new NotFoundException("User not found")
+            const user = await this.dataBaseService.user.findUnique({
+                where: { id }
+            });
+    
+            if (!user) {
+                throw new NotFoundException("User not found");
             }
-
-            return user
+    
+            return await this.dataBaseService.user.delete({
+                where: { id }
+            });
+    
         } catch (error) {
             if (error instanceof NotFoundException) {
                 throw error;
             }
-            throw new InternalServerErrorException(error.message)
+            throw new InternalServerErrorException(error.message);
         }
     }
+    
 
 }

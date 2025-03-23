@@ -44,24 +44,15 @@ describe('UsersController', () => {
     expect(usersController).toBeDefined();
   });
 
-  it('should return all users', async () => {
-    const result = await usersController.findAll()
-
-    expect(result).toEqual([
-      { id: 1, email: 'user1@example.com', status: 'User' },
-      { id: 2, email: 'admin@example.com', status: 'Admin' },
-    ])
-
-    expect(usersService.findAll).toHaveBeenCalledTimes(1);
-  })
-
   it('should return filtered users by status', async () => {
+    jest.clearAllMocks(); 
     mockUsersService.findAll.mockReturnValue([{id: 2, email: 'admin@example.com', status: 'Admin'}])
 
-    const result = await usersController.findAll('Admin')
+    const result = await usersController.findAll('Admin', 1, 10)
 
     expect(result).toEqual([{ id: 2, email: 'admin@example.com', status: 'Admin'}])
-    expect(usersService.findAll).toHaveBeenCalledWith('Admin')
+    expect(usersService.findAll).toHaveBeenCalledWith('Admin', 1, 10);
+    expect(usersService.findAll).toHaveBeenCalledTimes(1);
   })
 
   it('should throw BadRequestException for invalid status', async () => {

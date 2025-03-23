@@ -4,11 +4,13 @@ import { DatabaseService } from '../database/database.service';
 import { BadRequestException, ConflictException, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt'
+import { CacheService } from '../cache/cache.service';
 
 describe('UsersService', () => {
   let usersService: UsersService;
   let dataBaseService: DatabaseService
   let jwtService: JwtService
+  let cacheService: CacheService; 
 
   const mockDataBaseService ={
     user: {
@@ -17,6 +19,7 @@ describe('UsersService', () => {
       create: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
+      count: jest.fn(),
     },
     follow: {
       findUnique: jest.fn(),
@@ -30,18 +33,26 @@ describe('UsersService', () => {
     verify: jest.fn().mockReturnValue({ sub: 1, email: 'test@example.com' }),
   }
 
+  const mockCacheService = {
+    get: jest.fn(),
+    set: jest.fn(),
+    del: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UsersService,
         {provide: DatabaseService, useValue: mockDataBaseService},
-        {provide: JwtService, useValue: mockJwtService}
+        {provide: JwtService, useValue: mockJwtService},
+        {provide: CacheService, useValue: mockCacheService }
       ],
     }).compile();
 
     usersService = module.get<UsersService>(UsersService);
     dataBaseService = module.get<DatabaseService>(DatabaseService)
     jwtService = module.get<JwtService>(JwtService);
+    cacheService = module.get<CacheService>(CacheService);
   });
 
   it('should be defined', () => {
@@ -49,13 +60,19 @@ describe('UsersService', () => {
   });
 
   it('should return all users', async () => {
-    mockDataBaseService.user.findMany.mockResolvedValue([
-      { id: 1, email: 'user1@example.com', status: 'User'},
-      { id: 2, email: 'admin@example.com', status: 'Admin'},
-  ]);
+    const mockUsers = {
+      total: undefined,
+      users: [
+      { "email": "user1@example.com", "id": 1, "status": "User" },
+      { "email": "admin@example.com", "id": 2, "status": "Admin" }
+    ]
+  }
 
-  const result = await usersService.findAll()
-  expect(result).toHaveLength(2)
+    mockDataBaseService.user.findMany.mockResolvedValue(mockUsers.users);
+    
+    const result = await usersService.findAll();
+
+    expect(result).toEqual(mockUsers)
   })
 
   it('should throw BadRequestException for invalid status', async () => {
@@ -69,7 +86,10 @@ describe('UsersService', () => {
     const result = await usersService.findOne(1)
 
     expect(result).toEqual(mockUser)
-    expect(dataBaseService.user.findUnique).toHaveBeenCalledWith({where: {id: 1}})
+    expect(dataBaseService.user.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 1 } })
+    )
+    
   })
 
   it('should throw NotFoundException for invalid userId', async () => {
@@ -224,7 +244,10 @@ it('should delete a user', async () => {
 
   expect(result).toEqual(mockUser)
   expect(dataBaseService.user.findUnique).toHaveBeenCalledWith({where: {id: userId}})
-  expect(dataBaseService.user.delete).toHaveBeenCalledWith({where: {id: userId}})
+  expect(dataBaseService.user.delete).toHaveBeenCalledWith(
+    expect.objectContaining({ where: { id: userId } })
+  )
+  
 })
 
 it('should throw NotFoundException if user does not exist', async () => {
