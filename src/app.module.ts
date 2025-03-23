@@ -13,6 +13,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { MessagesService } from './messages/messages.service';
 import { MessagesModule } from './messages/messages.module';
 import { CacheModule } from './cache/cache.module';
+import { MoviesModule } from './movies/movies.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { CacheModule } from './cache/cache.module';
     TopicsModule,
     MessagesModule,
     CacheModule,
+    MoviesModule,
   ],
   controllers: [AppController],
   providers: [

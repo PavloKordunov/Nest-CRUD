@@ -4,6 +4,9 @@ import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGa
 import { Socket, Server } from "socket.io";
 import { DatabaseService } from "src/database/database.service";
 
+const AccessToken = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1YTI2OGNjMzczNjI2YzJmNWE4ZTc4MjUyZTAxODBkMSIsIm5iZiI6MTc0MjczNDA5NS4wMjIsInN1YiI6IjY3ZTAwMzBmMzViZDI2YTdkOTRkOTgyOSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.B_hvLg-LcoAnD8P7_XVlxeF4oduuiENZq3LMqkAA9cw'
+const apikey = '5a268cc373626c2f5a8e78252e0180d1'
+
 @WebSocketGateway(3002, {cors: {origin: "*"}})
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
@@ -95,7 +98,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private async validateUser(client: Socket): Promise<{ id: number; email: string; status: "User" | "Admin" } | null> {
     try {
   
-       const token = client.handshake.query.token as string;
+      const token = client.handshake.query.token as string;
 
       if (!token) throw new UnauthorizedException("No token provided");
   

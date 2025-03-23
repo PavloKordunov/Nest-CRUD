@@ -189,15 +189,15 @@ let UsersService = class UsersService {
     }
     async delete(id) {
         try {
-            const user = await this.dataBaseService.user.delete({
-                where: {
-                    id,
-                }
+            const user = await this.dataBaseService.user.findUnique({
+                where: { id }
             });
             if (!user) {
                 throw new common_1.NotFoundException("User not found");
             }
-            return user;
+            return await this.dataBaseService.user.delete({
+                where: { id }
+            });
         }
         catch (error) {
             if (error instanceof common_1.NotFoundException) {
